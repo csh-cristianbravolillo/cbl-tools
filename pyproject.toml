@@ -3,8 +3,8 @@ requires = ["hatchling"]
 build-backend = "hatchling.build"
 
 [project]
-name = "cbl_config"
-version = "0.0.10"
+name = "cbl_tools"
+version = "0.0.12"
 license = "MIT"
 authors = [
 	{ name = "Cristian Bravo Lillo", email = "cristian.bravo@gmail.com" },

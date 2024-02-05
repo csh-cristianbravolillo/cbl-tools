@@ -1,7 +1,7 @@
 import unittest, os, sys, random, tempfile
 sys.path.append(os.path.normpath(os.path.join(os.path.abspath(sys.path[0]), '../src')))
 from datetime import datetime
-from cbl_tools import cbl_config
+from cbl_tools import config
 
 
 class TestCommon(unittest.TestCase):
@@ -9,26 +9,26 @@ class TestCommon(unittest.TestCase):
     def test_exceptions(self):
         # Opening an inexistent folder should raise an OSError:1
         try:
-            cbl_config.config(thispath = '/inexistent')
+            config.config(thispath = '/inexistent')
         except OSError as e:
             self.assertEqual(e.errno, 1, "Config should raise an OSError:1 when opening an inexistent path")
 
         # Giving an empty filename should raise an OSError:2
         try:
-            cbl_config.config(filename = '')
+            config.config(filename = '')
         except OSError as e:
             self.assertEqual(e.errno, 2, "Config should raise an OSError:2 when given an empty filename")
 
         # Asking me to open an inexistent folder and not letting me create it raises an OSError:3
         try:
-            cbl_config.config(folder = 'narciso', create_folder = False)
+            config.config(folder = 'narciso', create_folder = False)
         except OSError as e:
             self.assertEqual(e.errno, 3, "Config should raise an OSError:3 when given an inexistent folder but not allowing to create it")
 
 
     def test_create_normal_folder(self):
         random.seed()
-        x = cbl_config.config(tempfile.gettempdir(), self._create_tempdir())
+        x = config.config(tempfile.gettempdir(), self._create_tempdir())
 
         # If asked to open an inexistent folder within a valid path, I should be able to create it.
         path = os.path.dirname(x.path)
