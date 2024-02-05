@@ -1,7 +1,7 @@
 import unittest, os, sys, random, tempfile
 sys.path.append(os.path.normpath(os.path.join(os.path.abspath(sys.path[0]), '../src')))
 from datetime import datetime
-from cbl_config import cbl_config
+from cbl_tools import cbl_config
 
 
 class TestCommon(unittest.TestCase):
