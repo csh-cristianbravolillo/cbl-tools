@@ -42,7 +42,7 @@ class config:
             os.mkdir(os.path.join(thispath, folder), 0o700)
 
         self.path = os.path.normpath(os.path.join(thispath, folder, filename))
-        self.values = configparser.ConfigParser(delimiters=(':'), comment_prefixes=('#'), interpolation = ExtendedInterpolation())
+        self.values = configparser.ConfigParser(delimiters=('='), comment_prefixes=('#'), interpolation = ExtendedInterpolation())
 
         # Si el archivo existe, hay que leerlo
         if os.path.exists(self.path):
