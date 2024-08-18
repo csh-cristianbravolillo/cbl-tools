@@ -1,7 +1,15 @@
 """It implements a config file that saves itself.
 
 The idea is: we want to use a config file for an application, which is a simple text file that contains pairs of values, in a similar fashion to an INI file. If the file
-exists, it is used; if it doesn't, it is created. We use configparser for this."""
+exists, it is used; if it doesn't, it is created. We use configparser for this.
+
+This class has two variables:
+
+* path: it's the absolute path formed by initpath and filename, arguments to the constructor of the class.
+* values: it's the configparser where one will find all the values that were read, if present.
+
+We may add sections and values to the self.values variable, and when the whole program exits, it will save those values into the file pointed to by self.path.
+"""
 
 import os
 import atexit
@@ -15,12 +23,12 @@ class config:
     path = None
     values = None
 
-    def __init__(self, initpath:str = '~/.config', filename:str = 'config.ini', create_folder:bool = True, default_section:str = 'base') -> None:
+    def __init__(self, initpath:str = '~/.config', filename:str = 'config.ini', create_folder:bool = True, default_section:str = 'default') -> None:
         """It creates a config file.
 
-        To create the file, we specify its path (by default, '~/.config'), and its filename. The last folder within the path may not exist, in which case it will be
-        created. Neither initpath nor filename could be empty (an OSError will be raised). We can also specify whether an inexistent folder should be created with
-        create_folder (by default, True).
+        To create the file, we specify its path (by default, '~/.config'), and its filename (by default, 'config.ini'). The last folder within the path may not exist,
+        in which case it will be created. Neither initpath nor filename could be empty (an OSError will be raised). We can also specify whether an inexistent folder
+        should be created with create_folder (by default, True).
 
         If thispath or filename are empty it raises an error. If the last portion of thispath doesn't exist and create_folder is False, it raises a FileNotFoundError
         since we're being asked to use a folder that doesn't exist, and we're being told not to create it.
@@ -71,3 +79,25 @@ class config:
     def __writedown(self) -> None:
         with open(self.path, "w") as thisfile:
             self.values.write(thisfile)
+
+
+    def set(self, section:str, var:str, val:str) -> None:
+        if not var or not val:
+            raise ValueError("set() was called without a var or a val")
+        self.values.set(section, var, val)
+
+
+    def get(self, section:str, var:str):
+        if not var or not section:
+            raise ValueError("get() was called without a var or a val")
+        return self.values.get(section, var)
+
+
+    def sections(self):
+        return self.values.sections()
+
+
+    def items(self, section:str):
+        if not section:
+            raise ValueError("items() was called without a var or a val")
+        return self.values.options(section)

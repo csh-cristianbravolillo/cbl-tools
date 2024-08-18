@@ -1,6 +1,8 @@
 __all__ = ["create_tempdir"]
 
-import os, random, tempfile
+import os
+import random
+import tempfile
 
 def create_tempdir(mkdir:bool = False):
     random.seed()

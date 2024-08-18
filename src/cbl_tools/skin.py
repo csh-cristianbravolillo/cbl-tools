@@ -9,7 +9,7 @@ This class has no CLI interaction with the user. Most methods use a 'result' to 
 the result of the execution.
 """
 
-from cbl_tools import cylon_config, result
+from cbl_tools import cylon_config
 
 class skin:
 
@@ -22,28 +22,14 @@ class skin:
         Loading a skin means to load a local folder, already downloaded from a source, and
         reading the config file in order to check whether this copy is in good condition.
         """
-
         self.config = cylon_config.CylonConfig(path)
 
-
-    def check_event(self, event:str = 'login') -> result:
-        """It makes a set of checks associated with a specific event.
-
-        Event could be either 'login', 'in', or 'logout'. It represents three
-        moments in which checks can be done. If none of those, it raises an error.
-
-        Each method is responsible for adding itself to one or more of these events in the
-        self.event variable. All callables inserted in one of these values will be executed.
-        """
-        pass
-
-
-    def info(self) -> result:
+    def info(self) -> str:
         """It returns information about itself."""
         pass
 
 
-    def pull(self) -> result:
+    def pull(self) -> bool:
         """It checks for changes in the remote, and download changes.
 
         Since a skin is a git repository, one may do a git pull to check if there are any
@@ -53,7 +39,7 @@ class skin:
         pass
 
 
-    def push(self) -> result:
+    def push(self) -> bool:
         """It commits all changes and push them to the remote.
 
         This is the logical opposite of pull, obviously.
@@ -66,17 +52,17 @@ class skin:
         return self.config.values.items('symlinks')
 
 
-    def do_symlinks(self) -> result:
+    def do_symlinks(self) -> bool:
         """It checks the links in the section symlinks in the config.ini."""
         pass
 
 
-    def get_copiedfiles(self) -> dict:
+    def get_copiedfiles(self) -> bool:
         """It returns all files within the section copied.files."""
         return self.config.values.items('copied.files')
 
 
-    def do_copiedfiles(self) -> result:
+    def do_copiedfiles(self) -> bool:
         """It copies files in the section copied.files."""
         pass
 
@@ -86,26 +72,11 @@ class skin:
         return self.config.values.items('apt')
 
 
-    def do_apt(self, cat:str = 'required') -> result:
+    def do_apt(self, cat:str = 'required') -> bool:
         """It checks the apt section looking for groups of packages, depending on 'cat':
         * If 'required' (default), it only checks whether the packages in the required
           key are installed.
         * If 'optional', it checks for all packages but the required.
         * If 'all', it checks for all packages.
         """
-        pass
-
-
-    def get_repo_sections(self) -> list:
-        """It returns all repo sections."""
-        return filter(lambda x : x.startswith('repo.'), self.config.values.sections())
-
-
-    def get_repo_names(self, section:str) -> dict:
-        """It returns all repo names within a section."""
-        return self.config.values.options(section)
-
-
-    def do_repo(self, section:str, name:str) -> result:
-        """It downloads a repo into a folder."""
         pass
