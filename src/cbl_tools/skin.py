@@ -11,7 +11,7 @@ the result of the execution.
 
 from cbl_tools import cylon_config
 
-class skin:
+class Skin:
 
     config = None
 
@@ -24,9 +24,10 @@ class skin:
         """
         self.config = cylon_config.CylonConfig(path)
 
-    def info(self) -> str:
+
+    def section(self, name:str) -> dict:
         """It returns information about itself."""
-        pass
+        return self.config.section(name)
 
 
     def pull(self) -> bool:
@@ -49,7 +50,7 @@ class skin:
 
     def get_symlinks(self) -> dict:
         """It returns all the pairs of symlinks to files that would be enforced if asked to."""
-        return self.config.values.items('symlinks')
+        return self.config.section('symlinks')
 
 
     def do_symlinks(self) -> bool:
@@ -57,9 +58,9 @@ class skin:
         pass
 
 
-    def get_copiedfiles(self) -> bool:
+    def get_copiedfiles(self) -> dict:
         """It returns all files within the section copied.files."""
-        return self.config.values.items('copied.files')
+        return self.config.section('copied.files')
 
 
     def do_copiedfiles(self) -> bool:

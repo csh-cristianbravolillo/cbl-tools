@@ -87,17 +87,32 @@ class config:
         self.values.set(section, var, val)
 
 
-    def get(self, section:str, var:str):
-        if not var or not section:
-            raise ValueError("get() was called without a var or a val")
-        return self.values.get(section, var)
+    def get(self, section:str, var:str = '') -> str:
+        if not section:
+            raise ValueError("get() was called without a section or a var")
+
+        if var:
+            return self.values.get(section, var)
+        else:
+            return self.values.get(section.split(":")[0], section.split(":")[1])
 
 
-    def sections(self):
+    def sections(self) -> list:
         return self.values.sections()
 
 
-    def items(self, section:str):
+    def section(self, section:str) -> dict:
         if not section:
-            raise ValueError("items() was called without a var or a val")
+            raise ValueError("items() was called without a section")
+
+        lst = {}
+        for pair in self.values.items(section):
+            lst[pair[0]] = pair[1]
+
+        return lst
+
+
+    def keys(self, section:str) -> list:
+        if not section:
+            raise ValueError("keys() was called without a section")
         return self.values.options(section)
