@@ -1,6 +1,6 @@
 import unittest, os, sys, tempfile, errno
 sys.path.append(os.path.normpath(os.path.join(os.path.abspath(sys.path[0]), '../src')))
-from cbl_tools import config, create_tempdir, cylon_config
+from cbl_tools import config, create_tempdir
 
 
 class ConfigTests(unittest.TestCase):
@@ -93,10 +93,5 @@ class ConfigTests(unittest.TestCase):
             pass
 
 
-class CylonConfigTests(unittest.TestCase):
-
-    def test_whatver(self):
-        pass
-
 if __name__ == '__main__':
-    unittest.main()
+    unittest.main(verbosity=2)
