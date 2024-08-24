@@ -1,3 +1,0 @@
-
-class NotCylonFolderError(RuntimeError):
-    pass
