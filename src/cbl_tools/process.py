@@ -1,3 +1,28 @@
+"""It runs an external program, and it stores the return code and both the standard
+output and standard error.
+
+You first create an object of this type:
+> p = process()
+
+Then run a command:
+> p.run("whoami")
+
+Immediately after you gain access to the return code, stdout and stderr:
+> print(p.returncode)
+> for line in p.stdout:
+>   print(line)
+
+You may check if return code was 0 (i.e., all good) by checking p.is_ok() to be true.
+You may also check whether there is any stdout or any stderr with p.is_there_stdout()
+and with p.is_there_stderr(), respectively.
+
+Finally you may extract information out of stdout by using extract(). This method receives
+a regular expression and boolean that is true by default (meaning that you want to inspect
+stdout; if false it will inspect stderr instead). The method will look for all matches in
+each line of stdout and store them in a list. The list stores as many elements as lines
+stdout has, and each element is a list of all matches within the corresponding line.
+"""
+
 import re
 import subprocess
 
@@ -9,7 +34,7 @@ class process:
 
     def __str__(self) -> str:
         if not self.command:
-            return "<Empty tools.run.run object>"
+            return "<Empty cbl_tools.process object>"
         else:
             out = f"({self.command})->{self.returncode}\n"
             if self.stdout:
@@ -45,16 +70,18 @@ class process:
     def is_there_stderr(self) -> bool:
         return self.stderr and len(self.stderr)>0
 
-    def search(self, pat:str, stdout:bool = True) -> list:
+    def extract(self, pat:str, stdout:bool = True, join:str = True) -> list:
         wheretolook = self.stdout if stdout else self.stderr
         if not wheretolook:
             return None
 
-        mtch = re.compile(pat)
-        lst = []
-        for line in wheretolook:
-            ret = mtch.search(line)
-            if ret:
-                lst.append(list(ret.groups()))
+        pattern = re.compile(pat)
 
-        return lst
+        if join:
+            return pattern.findall("".join(wheretolook))
+
+        else:
+            lst = []
+            for line in wheretolook:
+                lst.append(pattern.findall(line))
+            return lst
