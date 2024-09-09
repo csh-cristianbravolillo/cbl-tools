@@ -62,13 +62,19 @@ class process:
             exit(1)
 
     def is_ok(self) -> bool:
-        return self.returncode==0
+        return self.returncode == 0
 
     def is_there_stdout(self) -> bool:
-        return self.stdout and len(self.stdout)>0
+        if self.stdout == None:
+            return None
+        else:
+            return len(self.stdout)>0
 
     def is_there_stderr(self) -> bool:
-        return self.stderr and len(self.stderr)>0
+        if self.stderr == None:
+            return None
+        else:
+            return len(self.stderr)>0
 
     def extract(self, pat:str, stdout:bool = True, join:str = True) -> list:
         wheretolook = self.stdout if stdout else self.stderr
