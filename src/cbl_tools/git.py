@@ -1,3 +1,23 @@
+"""It provides a simple programmatical interface to git.
+
+First, you create a git object by providing a local path to a repo:
+
+```python
+from cbl_tools.git import git
+
+x = git("~/Dev/my_repo")
+```
+The previous will fail if provided path is not a git repo.
+
+Then you may either get the remote urls with `x.get_remote()`, or a get the status of the working tree by invoking `x.get_status()`.
+
+You may also do a commit with a list of files with `x.commit(list-of-files)`, or do a push (`x.git_push('my-commit-message')`) or a pull (`x.git_pull()`).
+
+This package also includes two auxiliary functions:
+
+* `git_clone(url:str, path:str)`: It clones `url` into `path`.
+* `is_git_url(url:str)`: It checks whether `url` is a valid git url.
+"""
 import re
 import errno
 import os.path

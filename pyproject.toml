@@ -4,18 +4,18 @@ build-backend = "hatchling.build"
 
 [project]
 name = "cbl_tools"
-version = "0.0.12"
+version = "0.1.0"
 license = "MIT"
 authors = [
 	{ name = "Cristian Bravo Lillo", email = "cristian.bravo@gmail.com" },
 ]
-description = "An specialization of config files that save themselves."
+description = "A set of helpers classes for daily tasks: a reusable config file, a process helper, and a git interface."
 readme = "README.md"
 requires-python = ">=3.8"
 classifiers = [
 	"Programming Language :: Python :: 3.8",
 	"License :: OSI Approved :: MIT License",
-	"Development Status :: 2 - Pre-Alpha",
+	"Development Status :: 3 - Alpha",
 	"Environment :: Console",
 	"Operating System :: POSIX :: Linux",
 	"Topic :: Utilities",
