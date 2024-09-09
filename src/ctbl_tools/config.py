@@ -16,7 +16,7 @@ import atexit
 import errno
 import configparser
 from configparser import ExtendedInterpolation
-from cbl_tools.exceptions import *
+from ctbl_tools.exceptions import *
 
 class config:
 

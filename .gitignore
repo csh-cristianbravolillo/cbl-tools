@@ -2,5 +2,5 @@
 build.txt
 .git
 **/__pycache__
-src/cbl_tools/prob.py
+src/ctbl_tools/prob.py
 src/test.py

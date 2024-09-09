@@ -21,9 +21,9 @@ This package also includes two auxiliary functions:
 import re
 import errno
 import os.path
-from cbl_tools import process
-from cbl_tools import norm_path
-from cbl_tools.exceptions import EmptyValueError
+from ctbl_tools import process
+from ctbl_tools import norm_path
+from ctbl_tools.exceptions import EmptyValueError
 
 class git:
 
