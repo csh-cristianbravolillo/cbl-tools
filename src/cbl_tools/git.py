@@ -2,61 +2,160 @@ import re
 import errno
 import os.path
 from cbl_tools import process
-
+from cbl_tools import norm_path
+from cbl_tools.exceptions import EmptyValueError
 
 class git:
-    folder = None
-    url_user = None
-    url_domain = None
-    url_path = None
-    remote = None
 
-    url = None
-    target = None
+    local_path = None
+    remote_path = None
 
-    # De git
-    def __init__(self, folder:str) -> None:
-        if not os.path.exists(folder) or not os.path.isdir(folder):
-            raise OSError(errno.EINVAL, f"no such folder ({folder}), or it's not a folder")
+    def __init__(self, path:str) -> None:
+        """This method takes a local path and treats it as if it were a cylon repo;
+        that is, it expects to find a git repo, with a files/ folder and a cylon.
+        """
+        # If normed path is not a folder, we reject it
+        path = norm_path(path)
+        if not os.path.isdir(path):
+            raise NotADirectoryError(errno.ENOTDIR, f"{path} is not a folder", path)
 
-        self.folder = folder
-        p = process()
-        p.run(f"git -C {self.folder} remote -v")
+        # We run a rev-parse
+        p = process.process()
+        p.run(f"git -C {path} rev-parse --absolute-git-dir")
+
+        # If there was something wrong, it's not a git folder
+        if not p.is_ok() or p.is_there_stderr() or not p.is_there_stdout() or not os.path.isdir(p.stdout[0]):
+            raise ValueError("Argument is not a git folder")
+
+        self.local_path = os.path.split(p.stdout[0])[0]
+
+    def get_remote(self) -> dict:
+        """It retrieves the list of remote repositories (usually just one), with their 'fetch' and 'push'
+        URLs (usually the same). It returns (and stores within self.remote_path) a dictionary with the
+        following structure:
+
+        name-of-repo -> {
+            'fetch' -> ['username', 'server', 'path'],
+            'push' -> ['username', 'server', 'path']
+        }
+        """
+
+        p = process.process()
+        p.run(f"git -C {self.local_path} remote -v")
+
+        if not p.is_ok() or p.is_there_stderr() or not p.is_there_stdout():
+            return None
+
         res = {}
-
-        for line in self.search("^(\w+)\t(\S+)\s\((fetch|push)\)"):
-            if not line[0] in res:
-                res[line[0]] = {}
-            res[line[0]][line[2]] = self._url_split(line[1])
-        self.remote = res
-
-    # De git clone
-    def __init__(self, url:str, target:str) -> None:
-        self.url = url
-        self.target = target
-        self.run(f"git clone {self.url} {self.target}", True)
-
+        for line in p.stdout:
+            x = re.fullmatch(r"(\w+)\t(\S+)\s\((fetch|push)\)", line)
+            if x:
+                if not x.group(1) in res:
+                    res[x.group(1)] = {}
+                res[x.group(1)][x.group(3)] = self._url_split(x.group(2))
+        self.remote_path = res
+        return res
 
     def _url_split(self, arg:str) -> list:
         tst = re.search(r"([^@]+?)@([^:]+?):(.+)", arg)
 
         if tst:
-            self.url_user = tst.group(1)
-            self.url_domain = tst.group(2)
-            self.url_path = tst.group(3)
-            if self.url_path.startswith("~" + self.url_user):
-                self.url_path = '~' + self.url_path[len(self.url_user)+1:]
-            return [self.url_user, self.url_domain, self.url_path]
+            url_user = tst.group(1)
+            url_domain = tst.group(2)
+            url_path = tst.group(3)
+
+            if url_path.startswith("~" + url_user):
+                url_path = '~' + url_path[len(url_user)+1:]
+            return [url_user, url_domain, url_path]
         else:
             return None
 
-    def get_server(self) -> str:
-        if not self.url_user or not self.url_domain:
+    def get_url(self, arg:str = '') -> str:
+        """If self.remote_path has been populated, it returns the remote url for the only repo;
+        otherwise, it returns None. If there is more than one repo, you should provide its name
+        as argument; otherwise, it returns None."""
+        if not self.remote_path:
             return None
-        else:
-            return self.url_user + '@' + self.url_domain
 
-    def does_path_start_with(self, path:str) -> bool:
-        if not path:
+        if len(self.remote_path)>1:
+            if arg == '':
+                return None
+            ln = self.remote_path[arg]
+        else:
+            ln = self.remote_path[list(self.remote_path.keys())[0]]
+
+        return ln[0] + '@' + ln[1] + ':' + ln[2]
+
+    def get_status(self) -> dict:
+        """It gets the status of the working tree in the porcelain v1 format (described
+        in the git manual for status). It returns either a dictionary or None. The keys
+        of the dict are the XY codes described for the porcelain v1 format, while the
+        elements are simple lists with paths of the corresponding files."""
+        p = process.process()
+        p.run(f"git -C {self.local_path} status --porcelain")
+        print(p)
+        if not p.is_ok() or not p.is_there_stdout():
+            return None
+
+        res = {}
+        for line in p.stdout:
+            x = re.fullmatch(r"(.{2})\s(.+)", line)
+            if x:
+                if not x.group(1) in res:
+                    res[x.group(1)] = []
+                res[x.group(1)].append(x.group(2))
+        return res
+
+    def commit(self, lst:list) -> bool:
+        if not lst:
             return False
-        return self.url_path.startswith(path)
+
+        p = process.process()
+        p.run(f"git -C {self.local_path} add {' '.join(lst)}")
+        return p.is_ok()
+
+    def git_push(self, msg:str = ''):
+        if not msg:
+            msg = 'Automatic commit by cbl_tools.git.commit()'
+        p = process.process()
+        p.run(f"git -C {self.local_path} commit -m '{msg}'")
+        return p.is_ok()
+
+    def git_pull(self) -> bool:
+        p = process.process()
+        p.run(f"git -C {self.local_path} pull")
+        return p.returncode == 0
+
+def git_clone(url:str, path:str) -> bool:
+    """It clones url to the local path."""
+
+    path = norm_path(path)
+    if os.path.exists(path):
+        raise FileExistsError(f"{path} already exists")
+
+    if not is_git_url(url):
+        raise ValueError(f"{url} is not a valid git url")
+
+    p = process.process()
+    p.run(f"git clone {url} {path}")
+    return p.is_ok()
+
+def is_git_url(url:str)-> bool:
+    """It tests url to be one of the five valid url-like git strings."""
+    if not url:
+        raise EmptyValueError("empty url")
+
+    allw = "[\w\-\d\.]"
+    user = f"({allw}+@)?"
+    host = f"{allw}+(\.{allw}+)+"
+    port = f"(:\d+)?"
+    path = f"(/{allw}*)*"
+
+    if re.fullmatch(f"ssh://{user}{host}{port}{path}", url) or re.fullmatch(f"git://{host}{port}{path}", url):
+        return True
+    if re.fullmatch(f"http(s)?://{host}{port}{path}", url) or re.fullmatch(f"ftp(s)?://{host}{port}{path}", url):
+        return True
+    if re.fullmatch(f"{user}{host}:~?{path}", url):
+        return True
+
+    return False
