@@ -1,10 +1,10 @@
-__all__ = ["create_tempdir"]
+__all__ = ["create_tempdir", "norm_path"]
 
 import os
 import random
 import tempfile
 
-def create_tempdir(mkdir:bool = False):
+def create_tempdir(mkdir:bool = False) -> str:
     random.seed()
  
     p = tempfile.gettempdir()
@@ -19,3 +19,9 @@ def create_tempdir(mkdir:bool = False):
         os.mkdir(thispath)
 
     return thispath
+
+def norm_path(*args) -> str:
+    if len(args) == 0 or not args[0]:
+        return None
+    else:
+        return os.path.normpath(os.path.expanduser(os.path.join(*args)))
