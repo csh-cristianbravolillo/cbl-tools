@@ -74,7 +74,7 @@ class config:
 
 
     def __str__(self) -> str:
-        return f"<cbl_tools.config object; path={self.path}>"
+        return f"<{self.__qualname__} object; path={self.path}>"
 
 
     def register(self, func:callable) -> None:
@@ -82,7 +82,7 @@ class config:
 
 
     def set(self, section:str, var:str, val:str) -> None:
-        if not section or section=='':
+        if not section:
             section = self._values.default_section
 
         if not var:
