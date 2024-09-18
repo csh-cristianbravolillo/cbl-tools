@@ -1,4 +1,4 @@
-# cbl_tools: miscelaneous daily tasks helpers
+# ctbl_tools: miscelaneous daily tasks helpers
 
 A package with miscelaneous classes meant to help at coding console helpers. Currently there are three classes:
 
@@ -15,7 +15,7 @@ The idea is: we want to use a config file for an application, which is a simple 
 An example:
 
 ```python
-from cbl_tools.config import config
+from ctbl_tools.config import config
 
 cfg = config(initpath = '~/somewhere/blabla.ini')
 cfg.create_section('my_configuration')
@@ -57,7 +57,7 @@ It provides a simple programmatical interface to git.
 First, you create a git object by providing a local path to a repo:
 
 ```python
-from cbl_tools.git import git
+from ctbl_tools.git import git
 
 x = git("~/Dev/my_repo")
 ```
