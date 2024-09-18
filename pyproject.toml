@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "ctbl_tools"
-version = "0.1.2"
+version = "0.1.3"
 license = "MIT"
 authors = [
 	{ name = "Cristian Bravo Lillo", email = "cristian.bravo@gmail.com" },
