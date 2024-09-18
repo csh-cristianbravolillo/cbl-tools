@@ -3,10 +3,9 @@
 The idea is: we want to use a config file for an application, which is a simple text file that contains pairs of values, in a similar fashion to an INI file. If the file
 exists, it is used; if it doesn't, it is created. We use configparser for this.
 
-This class has two variables:
+This class has just one public variable: path, which is the absolute path formed by initpath and filename, arguments to the constructor of the class.
 
-* path: it's the absolute path formed by initpath and filename, arguments to the constructor of the class.
-* values: it's the configparser where one will find all the values that were read, if present.
+_values is the configparser where one will find all the values that were read, if present. I'm not sure if I should make it public though.
 
 We may add sections and values to the self.values variable, and when the whole program exits, it will save those values into the file pointed to by self.path.
 """
@@ -21,7 +20,7 @@ from ctbl_tools.exceptions import *
 class config:
 
     path = None
-    values = None
+    _values = None
 
     def __init__(self, initpath:str = '~/.config/config.ini', create_folder:bool = True, default_section:str = 'default') -> None:
         """It creates a config file.
@@ -64,14 +63,14 @@ class config:
         if os.path.commonpath([self.path, initpath]) != initpath:
             raise ValueError(f"filename ({filename}) is relative to initpath ({initpath}), and it should be within it, but it's not ({self.path})")
 
-        self.values = configparser.ConfigParser(delimiters=('='), comment_prefixes=('#'), interpolation = ExtendedInterpolation())
-        self.values.default_section = default_section
+        self._values = configparser.ConfigParser(delimiters=('='), comment_prefixes=('#'), interpolation = ExtendedInterpolation())
+        self._values.default_section = default_section
 
         # Si el archivo existe, hay que leerlo
         if os.path.exists(self.path):
-            self.values.read(self.path)
+            self._values.read(self.path)
 
-        self.register(self.flush)
+        self.register(self._flush)
 
 
     def __str__(self) -> str:
@@ -82,48 +81,43 @@ class config:
         atexit.register(func)
 
 
-    def flush(self) -> None:
-        with open(self.path, "w") as thisfile:
-            self.values.write(thisfile)
-
-
     def set(self, section:str, var:str, val:str) -> None:
         if not section or section=='':
-            section = self.values.default_section
+            section = self._values.default_section
 
         if not var:
             raise MissingValueError("missing var")
 
-        self.values.set(section, var, val)
+        self._values.set(section, var, val)
 
 
     def get(self, section:str, var:str = '') -> str:
         if not section:
-            section = self.values.default_section
+            section = self._values.default_section
 
         if var:
-            return self.values.get(section, var)
+            return self._values.get(section, var)
         else:
-            return self.values.get(section.split(":")[0], section.split(":")[1])
+            return self._values.get(section.split(":")[0], section.split(":")[1])
 
 
     def sections(self) -> list:
-        return self.values.sections()
+        return self._values.sections()
 
 
     def has_section(self, section:str) -> bool:
         if not section:
-            section = self.values.default_section
+            section = self._values.default_section
 
         return section in self.sections()
 
 
     def section(self, section:str) -> dict:
         if not section:
-            section = self.values.default_section
+            section = self._values.default_section
 
         lst = {}
-        for pair in self.values.items(section):
+        for pair in self._values.items(section):
             lst[pair[0]] = pair[1]
 
         return lst
@@ -131,13 +125,18 @@ class config:
 
     def add_section(self, section:str) -> None:
         if not section:
-            section = self.values.default_section
+            section = self._values.default_section
         if self.has_section(section):
             raise ValueExistsError(f"section {section} already exists")
-        self.values.add_section(section)
+        self._values.add_section(section)
 
 
     def keys(self, section:str) -> list:
         if not section:
-            section = self.values.default_section
-        return self.values.options(section)
+            section = self._values.default_section
+        return self._values.options(section)
+
+
+    def _flush(self) -> None:
+        with open(self.path, "w") as thisfile:
+            self._values.write(thisfile)
