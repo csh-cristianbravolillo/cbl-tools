@@ -74,7 +74,7 @@ class config:
 
 
     def __str__(self) -> str:
-        return f"<{self.__qualname__} object; path={self.path}>"
+        return f"<{__class__.__name__} object; path={self.path}>"
 
 
     def register(self, func:callable) -> None:
