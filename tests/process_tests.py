@@ -1,6 +1,6 @@
 import unittest, os, sys
 sys.path.append(os.path.normpath(os.path.join(os.path.abspath(sys.path[0]), '../src')))
-from cbl_tools.process import process
+from ctbl_tools.process import process
 
 class TestProcess(unittest.TestCase):
 
