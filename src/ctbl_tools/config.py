@@ -6,8 +6,6 @@ exists, it is used; if it doesn't, it is created. We use configparser for this.
 This class has just one public variable: path, which is the absolute path formed by initpath and filename, arguments to the constructor of the class.
 
 _values is the configparser where one will find all the values that were read, if present. I'm not sure if I should make it public though.
-
-We may add sections and values to the self.values variable, and when the whole program exits, it will save those values into the file pointed to by self.path.
 """
 
 import os

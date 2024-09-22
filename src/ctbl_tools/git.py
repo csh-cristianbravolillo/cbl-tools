@@ -25,6 +25,69 @@ from ctbl_tools import process
 from ctbl_tools import norm_path
 from ctbl_tools.exceptions import EmptyValueError
 
+
+def git_clone(url:str, path:str) -> bool:
+    """It clones url to the local path."""
+
+    path = norm_path(path)
+    if os.path.exists(path):
+        raise FileExistsError(f"{path} already exists")
+
+    if not is_git_url(url):
+        raise ValueError(f"{url} is not a valid git url")
+
+    p = process.process()
+    p.run(f"git clone {url} {path}")
+    return p.is_ok()
+
+def is_git_url(url:str)-> bool:
+    """It tests url to be one of the five valid url-like git strings."""
+    if not url:
+        raise EmptyValueError("empty url")
+
+    allw = "[\w\-\d\.]"
+    user = f"({allw}+@)"
+    host = f"{allw}+(\.{allw}+)+"
+    port = f"(:\d+)?"
+    path = f"({allw}+/?)*"
+
+    # Type of URL #1: via SSH
+    if re.fullmatch(f"ssh://{user}?{host}{port}{path}", url):
+        return True
+
+    # Type of URL #2: via HTTP(S), FTP(S), or via a pseudo-url with GIT as protocol
+    if re.fullmatch(f"((ht|f)tp(s)?|git)://{host}{port}{path}", url):
+        return True
+
+    # Type of URL #3: via user and host, which is for a private server
+    if re.fullmatch(f"{user}?{host}:~?{path}", url):
+        return True
+
+    return False
+
+def is_git_folder(path:str, return_folder:bool = False):
+
+    # We run a rev-parse
+    path = norm_path(path)
+    p = process.process()
+    p.run(f"git -C {path} rev-parse --absolute-git-dir")
+
+    # If there was something wrong, it's not a git folder
+    if not p.is_ok() or p.is_there_stderr() or not p.is_there_stdout():
+        return False
+
+    # We split the returned line and check if there is a dir there
+    is_git = os.path.isdir(os.path.dirname(p.stdout[0])) and os.path.basename(p.stdout[0]) == '.git'
+
+    if return_folder and is_git:
+        return os.path.dirname(p.stdout[0])
+        
+    if return_folder:
+        return None
+
+    return is_git
+
+
 class git:
 
     local_path = None
@@ -39,15 +102,17 @@ class git:
         if not os.path.isdir(path):
             raise NotADirectoryError(errno.ENOTDIR, f"{path} is not a folder", path)
 
-        # We run a rev-parse
+        # We ask if it's a git folder
+        if not is_git_folder(path):
+            raise ValueError("Argument is not a git folder")
+
         p = process.process()
         p.run(f"git -C {path} rev-parse --absolute-git-dir")
 
-        # If there was something wrong, it's not a git folder
-        if not p.is_ok() or p.is_there_stderr() or not p.is_there_stdout() or not os.path.isdir(p.stdout[0]):
-            raise ValueError("Argument is not a git folder")
+        if not p.is_ok() or not p.is_there_stdout() or p.is_there_stderr():
+            raise ValueError("Internal inconsistency in the arguments")
 
-        self.local_path = os.path.split(p.stdout[0])[0]
+        self.local_path = os.path.dirname(p.stdout[0])
 
     def get_remote(self) -> dict:
         """It retrieves the list of remote repositories (usually just one), with their 'fetch' and 'push'
@@ -145,37 +210,3 @@ class git:
         p = process.process()
         p.run(f"git -C {self.local_path} pull")
         return p.returncode == 0
-
-def git_clone(url:str, path:str) -> bool:
-    """It clones url to the local path."""
-
-    path = norm_path(path)
-    if os.path.exists(path):
-        raise FileExistsError(f"{path} already exists")
-
-    if not is_git_url(url):
-        raise ValueError(f"{url} is not a valid git url")
-
-    p = process.process()
-    p.run(f"git clone {url} {path}")
-    return p.is_ok()
-
-def is_git_url(url:str)-> bool:
-    """It tests url to be one of the five valid url-like git strings."""
-    if not url:
-        raise EmptyValueError("empty url")
-
-    allw = "[\w\-\d\.]"
-    user = f"({allw}+@)?"
-    host = f"{allw}+(\.{allw}+)+"
-    port = f"(:\d+)?"
-    path = f"(/{allw}*)*"
-
-    if re.fullmatch(f"ssh://{user}{host}{port}{path}", url) or re.fullmatch(f"git://{host}{port}{path}", url):
-        return True
-    if re.fullmatch(f"http(s)?://{host}{port}{path}", url) or re.fullmatch(f"ftp(s)?://{host}{port}{path}", url):
-        return True
-    if re.fullmatch(f"{user}{host}:~?{path}", url):
-        return True
-
-    return False
