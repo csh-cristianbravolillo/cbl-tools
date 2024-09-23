@@ -88,3 +88,10 @@ class config(configparser.ConfigParser):
 
     def register(self, func:callable) -> None:
         atexit.register(func)
+
+    def section(self, section:str) -> dict:
+        "It returns all the values in a section, but as a dict instead of a list of tuples."
+        sct = {}
+        for x,y in self.items(section):
+            sct[x] = y
+        return sct
