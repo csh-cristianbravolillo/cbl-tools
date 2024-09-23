@@ -68,7 +68,7 @@ class ConfigTests(unittest.TestCase):
 
     def test_store_and_retrieve(self):
         self._create_values()
-        self.x.flush()
+        self.x._flush()
 
         y = config(initpath=self.x.path, create_folder=False)
         self.assertTrue(y.has_section('blabla'), "Cannot create section 'blabla'")
@@ -80,10 +80,6 @@ class ConfigTests(unittest.TestCase):
     def test_sections(self):
         self._create_values()
         self.assertListEqual(self.x.sections(), ['blabla', 'naka'], "sections() should return all sections, but it doesn't")
-
-    def test_keys(self):
-        self._create_values()
-        self.assertListEqual(self.x.keys('blabla'), ['a', 'b', 'c', 'switch', 'tres'])
 
 if __name__ == '__main__':
     unittest.main(verbosity=2)

@@ -60,8 +60,7 @@ class config(configparser.ConfigParser):
         if os.path.commonpath([self.path, initpath]) != initpath:
             raise ValueError(f"filename ({filename}) is relative to initpath ({initpath}), and it should be within it, but it's not ({self.path})")
 
-        super().__init__(delimiters=('='), comment_prefixes=('#'), interpolation=ExtendedInterpolation())
-        super().default_section = default_section
+        super().__init__(delimiters=('='), comment_prefixes=('#'), interpolation=ExtendedInterpolation(), default_section=default_section)
 
         # Si el archivo existe, hay que leerlo
         if os.path.exists(self.path):
@@ -69,27 +68,23 @@ class config(configparser.ConfigParser):
 
         self.register(self._flush)
 
-
     def __str__(self) -> str:
         return f"<{__class__.__name__} object; path={self.path}>"
 
-
     def _flush(self) -> None:
-        with open(self.path, "w") as thisfile:
-            self._values.write(thisfile)
-
+        f = open(self.path, "w")
+        self.write(f)
+        f.close()
 
     def get_dirname(self) -> str:
         if self.path:
             return os.path.dirname(self.path)
         return None
 
-
     def get_filename(self) -> str:
         if self.path:
             return os.path.basename(self.path)
         return None
-
 
     def register(self, func:callable) -> None:
         atexit.register(func)
