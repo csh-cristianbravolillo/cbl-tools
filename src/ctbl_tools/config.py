@@ -15,10 +15,9 @@ import configparser
 from configparser import ExtendedInterpolation
 from ctbl_tools.exceptions import *
 
-class config:
+class config(configparser.ConfigParser):
 
     path = None
-    _values = None
 
     def __init__(self, initpath:str = '~/.config/config.ini', create_folder:bool = True, default_section:str = 'default') -> None:
         """It creates a config file.
@@ -61,12 +60,12 @@ class config:
         if os.path.commonpath([self.path, initpath]) != initpath:
             raise ValueError(f"filename ({filename}) is relative to initpath ({initpath}), and it should be within it, but it's not ({self.path})")
 
-        self._values = configparser.ConfigParser(delimiters=('='), comment_prefixes=('#'), interpolation = ExtendedInterpolation())
-        self._values.default_section = default_section
+        super().__init__(delimiters=('='), comment_prefixes=('#'), interpolation=ExtendedInterpolation())
+        super().default_section = default_section
 
         # Si el archivo existe, hay que leerlo
         if os.path.exists(self.path):
-            self._values.read(self.path)
+            super().read(self.path)
 
         self.register(self._flush)
 
@@ -75,66 +74,22 @@ class config:
         return f"<{__class__.__name__} object; path={self.path}>"
 
 
-    def register(self, func:callable) -> None:
-        atexit.register(func)
-
-
-    def set(self, section:str, var:str, val:str) -> None:
-        if not section:
-            section = self._values.default_section
-
-        if not var:
-            raise MissingValueError("missing var")
-
-        self._values.set(section, var, val)
-
-
-    def get(self, section:str, var:str = '') -> str:
-        if not section:
-            section = self._values.default_section
-
-        if var:
-            return self._values.get(section, var)
-        else:
-            return self._values.get(section.split(":")[0], section.split(":")[1])
-
-
-    def sections(self) -> list:
-        return self._values.sections()
-
-
-    def has_section(self, section:str) -> bool:
-        if not section:
-            section = self._values.default_section
-
-        return section in self.sections()
-
-
-    def section(self, section:str) -> dict:
-        if not section:
-            section = self._values.default_section
-
-        lst = {}
-        for pair in self._values.items(section):
-            lst[pair[0]] = pair[1]
-
-        return lst
-
-
-    def add_section(self, section:str) -> None:
-        if not section:
-            section = self._values.default_section
-        if self.has_section(section):
-            raise ValueExistsError(f"section {section} already exists")
-        self._values.add_section(section)
-
-
-    def keys(self, section:str) -> list:
-        if not section:
-            section = self._values.default_section
-        return self._values.options(section)
-
-
     def _flush(self) -> None:
         with open(self.path, "w") as thisfile:
             self._values.write(thisfile)
+
+
+    def get_dirname(self) -> str:
+        if self.path:
+            return os.path.dirname(self.path)
+        return None
+
+
+    def get_filename(self) -> str:
+        if self.path:
+            return os.path.basename(self.path)
+        return None
+
+
+    def register(self, func:callable) -> None:
+        atexit.register(func)

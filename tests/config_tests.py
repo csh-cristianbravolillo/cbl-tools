@@ -1,6 +1,7 @@
 import unittest, os, sys, tempfile, errno
 sys.path.append(os.path.normpath(os.path.join(os.path.abspath(sys.path[0]), '../src')))
-from ctbl_tools import config, create_tempdir
+from ctbl_tools.config import config
+from ctbl_tools import create_tempdir
 
 
 class ConfigTests(unittest.TestCase):
@@ -8,7 +9,7 @@ class ConfigTests(unittest.TestCase):
     x = None
 
     def setUp(self) -> None:
-        self.x = config.config(initpath=create_tempdir(True) + '/zort.ini', default_section='base')
+        self.x = config(initpath=create_tempdir(True) + '/zort.ini', default_section='base')
         return super().setUp()
 
     def _create_values(self):
@@ -24,17 +25,17 @@ class ConfigTests(unittest.TestCase):
     def test_exceptions(self):
         # Opening an inexistent folder should raise an OSError:1
         try:
-            config.config(initpath = os.path.join(tempfile.gettempdir(), "inexistent_folder_029837492837498/file.txt"), create_folder=False)
+            config(initpath = os.path.join(tempfile.gettempdir(), "inexistent_folder_029837492837498/file.txt"), create_folder=False)
         except FileNotFoundError as e:
             self.assertEqual(e.errno, errno.ENOENT, "An inexistent path with false create_folder should raise a FileNotFoundError")
 
         try:
-            config.config(initpath = os.path.join(tempfile.gettempdir(), 'X', 'Y'))
+            config(initpath = os.path.join(tempfile.gettempdir(), 'X', 'Y'))
         except FileNotFoundError as e:
             self.assertEqual(e.errno, errno.ENOENT, "More than two inexistent folders should raise a FileNotFoundError")
 
         try:
-            config.config(initpath = '/root/my_own_folder/file.txt')
+            config(initpath = '/root/my_own_folder/file.txt')
         except PermissionError as e:
             self.assertEqual(e.errno, errno.EACCES, "Trying to create a folder within /root should raise a PermissionError!")
 
@@ -61,7 +62,7 @@ class ConfigTests(unittest.TestCase):
 
     def test_abusive_conf(self):
         try:
-            self.x = config.config(os.getenv("HOME") + "/../another_user")
+            self.x = config(os.getenv("HOME") + "/../another_user")
         except ValueError:
             pass
 
@@ -69,7 +70,7 @@ class ConfigTests(unittest.TestCase):
         self._create_values()
         self.x.flush()
 
-        y = config.config(initpath=self.x.path, create_folder=False)
+        y = config(initpath=self.x.path, create_folder=False)
         self.assertTrue(y.has_section('blabla'), "Cannot create section 'blabla'")
         self.assertEqual(y.get('blabla', 'a'), '1', 'get(blabla:a) should be equal to \'1\'; it\'s not')
         self.assertEqual(y.get('blabla', 'b'), 'be', 'get(blabla:b) should be equal to \'be\'; it\'s not')
