@@ -61,6 +61,7 @@ class config(configparser.ConfigParser):
             raise ValueError(f"filename ({filename}) is relative to initpath ({initpath}), and it should be within it, but it's not ({self.path})")
 
         super().__init__(delimiters=('='), comment_prefixes=('#'), interpolation=ExtendedInterpolation(), default_section=default_section)
+        self.optionxform = str
 
         # Si el archivo existe, hay que leerlo
         if os.path.exists(self.path):
