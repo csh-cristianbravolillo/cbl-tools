@@ -50,7 +50,7 @@ class process:
         self.stderr = None
 
     def run(self, comm:str, fail_if_not_ok:bool = False) -> None:
-        cp = subprocess.run(comm.split(" "), capture_output=True, text=True)
+        cp = subprocess.run(comm, shell=True, capture_output=True, text=True)
         self.command = comm
         self.returncode = cp.returncode
         if cp.stdout != '':
