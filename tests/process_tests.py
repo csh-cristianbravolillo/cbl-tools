@@ -14,8 +14,8 @@ class TestProcess(unittest.TestCase):
         return super().tearDown()
 
     def test_ls(self):
-        self.tp.run("ls")
-        self.assertEqual(self.tp.command, "ls")
+        self.tp.run("ls -l /tmp")
+        self.assertEqual(self.tp.command, "ls -l /tmp")
         self.assertEqual(self.tp.returncode, 0)
         self.assertTrue(self.tp.is_ok())
         self.assertTrue(self.tp.is_there_stdout())
