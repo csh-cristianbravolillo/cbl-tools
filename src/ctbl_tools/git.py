@@ -17,6 +17,8 @@ This package also includes two auxiliary functions:
 
 * `git_clone(url:str, path:str)`: It clones `url` into `path`.
 * `is_git_url(url:str)`: It checks whether `url` is a valid git url.
+* `is_git_folder(path:str, return_folder:bool = False)`: It checks whether `path` is a cylon folder or one of its subfolders. It `return_folder` is False,
+  it returns a boolean with the result. Otherwise, it returns the path of the root of the cylon folder.
 """
 import re
 import errno
@@ -178,7 +180,6 @@ class git:
         elements are simple lists with paths of the corresponding files."""
         p = process.process()
         p.run(f"git -C {self.local_path} status --porcelain")
-        print(p)
         if not p.is_ok() or not p.is_there_stdout():
             return None
 
@@ -191,22 +192,29 @@ class git:
                 res[x.group(1)].append(x.group(2))
         return res
 
-    def commit(self, lst:list) -> bool:
-        if not lst:
-            return False
+    def git_add(self, include_new:bool = False) -> bool:
+        if include_new:
+            opt = '-A'
+        else:
+            opt = '-u'
 
         p = process.process()
-        p.run(f"git -C {self.local_path} add {' '.join(lst)}")
+        p.run(f"git -C {self.local_path} add {opt}")
         return p.is_ok()
 
-    def git_push(self, msg:str = ''):
+    def git_commit(self, msg:str = '') -> process.process:
         if not msg:
             msg = 'Automatic commit by cbl_tools.git.commit()'
         p = process.process()
         p.run(f"git -C {self.local_path} commit -m '{msg}'")
-        return p.is_ok()
+        return p
 
-    def git_pull(self) -> bool:
+    def git_push(self) -> bool:
+        p = process.process()
+        p.run(f"git -C {self.local_path} push --all")
+        return p
+
+    def git_pull(self) -> process.process:
         p = process.process()
         p.run(f"git -C {self.local_path} pull")
-        return p.returncode == 0
+        return p
