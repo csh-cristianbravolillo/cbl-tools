@@ -14,30 +14,32 @@ class TestProcess(unittest.TestCase):
         return super().tearDown()
 
     def test_ls(self):
-        self.tp.run("ls -l /tmp")
-        self.assertEqual(self.tp.command, "ls -l /tmp")
-        self.assertEqual(self.tp.returncode, 0)
-        self.assertTrue(self.tp.is_ok())
-        self.assertTrue(self.tp.is_there_stdout())
-        self.assertFalse(self.tp.is_there_stderr())
+        if self.tp:
+            self.tp.run("ls -l /tmp")
+            self.assertEqual(self.tp.command, "ls -l /tmp")
+            self.assertEqual(self.tp.returncode, 0)
+            self.assertTrue(self.tp.is_ok())
+            self.assertTrue(self.tp.is_there_stdout())
+            self.assertFalse(self.tp.is_there_stderr())
 
     def test_str(self):
         self.assertEqual(str(self.tp), "<Empty cbl_tools.process object>")
 
     def test_id(self):
-        self.tp.run("whoami")
-        self.assertEqual(self.tp.returncode, 0)
-        self.assertEqual(len(self.tp.stdout), 1)
-        username = self.tp.stdout[0]
+        if self.tp:
+            self.tp.run("whoami")
+            self.assertEqual(self.tp.returncode, 0)
+            self.assertEqual(len(self.tp.stdout), 1)
+            username = self.tp.stdout[0]
 
-        self.tp.reset()
-        self.tp.run("id")
-        self.assertEqual(self.tp.returncode, 0)
-        self.assertEqual(len(self.tp.stdout), 1)
-        lst = self.tp.extract(r"(\w+)=(\d+)\((\w+)\)")
+            self.tp.reset()
+            self.tp.run("id")
+            self.assertEqual(self.tp.returncode, 0)
+            self.assertEqual(len(self.tp.stdout), 1)
+            lst = self.tp.extract(r"(\w+)=(\d+)\((\w+)\)")
 
-        for elem in lst:
-            self.assertEqual(elem[2], username)
+            for elem in lst:
+                self.assertEqual(elem[2], username)
 
 if __name__ == '__main__':
     unittest.main(verbosity=2)

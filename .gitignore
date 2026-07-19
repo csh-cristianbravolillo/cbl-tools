@@ -4,4 +4,7 @@ build.txt
 .git
 **/__pycache__
 src/ctbl_tools/prob.py
-src/test.py
+bin/
+lib/
+lib64
+pyvenv.cfg

@@ -24,10 +24,10 @@ def create_tempdir(mkdir:bool = False) -> str:
 #> -----------------------------------------------------------------------------------
 def norm_path(*args) -> str:
     if len(args) == 0 or not args[0]:
-        return None
+        return ""
     else:
         return os.path.normpath(os.path.expanduser(os.path.join(*args)))
 
 #> -----------------------------------------------------------------------------------
 def is_file_readable(file:str) -> bool:
-    return file and os.path.exists(file) and os.path.isfile(file) and os.access(file, os.R_OK)
+    return file != "" and os.path.exists(file) and os.path.isfile(file) and os.access(file, os.R_OK)

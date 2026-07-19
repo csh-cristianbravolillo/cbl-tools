@@ -27,10 +27,15 @@ import re
 import subprocess
 
 class process:
-    command = None
-    returncode = None
-    stdout = None
-    stderr = None
+
+    def __init__(self) -> None:
+        self.reset()
+
+    def reset(self) -> None:
+        self.command = ""
+        self.returncode = -1
+        self.stdout = []
+        self.stderr = []
 
     def __str__(self) -> str:
         if not self.command:
@@ -42,12 +47,6 @@ class process:
             if self.stderr:
                 out += ''.join(map(lambda x: 'E: '+x+'\n', self.stderr))
             return out
-
-    def reset(self) -> None:
-        self.command = None
-        self.returncode = None
-        self.stdout = None
-        self.stderr = None
 
     def run(self, comm:str, fail_if_not_ok:bool = False) -> None:
         cp = subprocess.run(comm, shell=True, capture_output=True, text=True)
@@ -65,27 +64,20 @@ class process:
         return self.returncode == 0
 
     def is_there_stdout(self) -> bool:
-        if self.stdout == None:
-            return None
-        else:
-            return len(self.stdout)>0
+        return len(self.stdout)>0
 
     def is_there_stderr(self) -> bool:
-        if self.stderr == None:
-            return None
-        else:
-            return len(self.stderr)>0
+        return len(self.stderr)>0
 
-    def extract(self, pat:str, stdout:bool = True, join:str = True) -> list:
+    def extract(self, pat:str, stdout:bool = True, join:bool = True) -> list:
         wheretolook = self.stdout if stdout else self.stderr
         if not wheretolook:
-            return None
+            return []
 
         pattern = re.compile(pat)
 
         if join:
             return pattern.findall("".join(wheretolook))
-
         else:
             lst = []
             for line in wheretolook:

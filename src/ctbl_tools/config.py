@@ -12,12 +12,13 @@ import os
 import atexit
 import errno
 import configparser
+from typing import Callable, Optional
 from configparser import ExtendedInterpolation
 from ctbl_tools.exceptions import *
 
 class config(configparser.ConfigParser):
 
-    path = None
+    path:str = ""
 
     def __init__(self, initpath:str = '~/.config/config.ini', create_folder:bool = True, default_section:str = 'default') -> None:
         """It creates a config file.
@@ -61,7 +62,7 @@ class config(configparser.ConfigParser):
             raise ValueError(f"filename ({filename}) is relative to initpath ({initpath}), and it should be within it, but it's not ({self.path})")
 
         super().__init__(delimiters=('='), comment_prefixes=('#'), interpolation=ExtendedInterpolation(), default_section=default_section)
-        self.optionxform = str
+        # self.optionxform = str
 
         # Si el archivo existe, hay que leerlo
         if os.path.exists(self.path):
@@ -80,14 +81,16 @@ class config(configparser.ConfigParser):
     def get_dirname(self) -> str:
         if self.path:
             return os.path.dirname(self.path)
-        return None
+        else:
+            return ""
 
     def get_filename(self) -> str:
         if self.path:
             return os.path.basename(self.path)
-        return None
+        else:
+            return ""
 
-    def register(self, func:callable) -> None:
+    def register(self, func:Callable) -> None:
         atexit.register(func)
 
     def section(self, section:str) -> dict:

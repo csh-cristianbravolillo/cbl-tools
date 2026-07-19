@@ -13,14 +13,15 @@ class ConfigTests(unittest.TestCase):
         return super().setUp()
 
     def _create_values(self):
-        self.x.add_section('blabla')
-        self.x.set('blabla', 'a', '1')
-        self.x.set('blabla', 'b', 'be')
-        self.x.set('blabla', 'c', '3.141592653')
-        self.x.set('blabla', 'switch', 'on')
-        self.x.add_section('naka')
-        self.x.set('naka', 'valor1', 'a${blabla:a}c${blabla:c}zzz${blabla:b}')
-        self.x.set(None, 'tres', 'cuatro')
+        if self.x:
+            self.x.add_section('blabla')
+            self.x.set('blabla', 'a', '1')
+            self.x.set('blabla', 'b', 'be')
+            self.x.set('blabla', 'c', '3.141592653')
+            self.x.set('blabla', 'switch', 'on')
+            self.x.add_section('naka')
+            self.x.set('naka', 'valor1', 'a${blabla:a}c${blabla:c}zzz${blabla:b}')
+            self.x.set('', 'tres', 'cuatro')
 
     def test_exceptions(self):
         # Opening an inexistent folder should raise an OSError:1
@@ -41,45 +42,51 @@ class ConfigTests(unittest.TestCase):
 
     def test_create_normal_config(self):
         # If asked to open an inexistent folder within a valid path, I should be able to create it.
-        path = os.path.dirname(self.x.path)
-        self.assertTrue(os.path.exists(path), f"Config should be able to create folder {path}")
-        self.assertTrue(os.path.isdir(path), f"{path} should be a folder (it's not)")
+        if self.x:
+            path = os.path.dirname(self.x.path)
+            self.assertTrue(os.path.exists(path), f"Config should be able to create folder {path}")
+            self.assertTrue(os.path.isdir(path), f"{path} should be a folder (it's not)")
 
-        # Create a few values and then retrieve them
-        self.assertFalse(self.x.has_section('blabla'), "An inexistent section ('blabla') exists")
-        self._create_values()
-        self.assertTrue(self.x.has_section('blabla'), "Cannot create section 'blabla'")
-        self.assertEqual(self.x.get('blabla', 'a'), '1', 'get(blabla:a) should be equal to \'1\'; it\'s not')
-        self.assertEqual(int(self.x.get('blabla', 'a')), 1, 'getint(blabla:a) should be equal to 1; it\'s not')
-        self.assertEqual(self.x.get('blabla', 'b'), 'be', 'get(blabla:b) should be equal to \'be\'; it\'s not')
-        self.assertEqual(float(self.x.get('blabla', 'c')), 3.141592653, 'getint(blabla:c) should be equal to pi; it\'s not')
-        self.assertTrue(bool(self.x.get('blabla', 'switch')), 'getbool(blabla:switch) should be True; it\'s not')
+            # Create a few values and then retrieve them
+            self.assertFalse(self.x.has_section('blabla'), "An inexistent section ('blabla') exists")
+            self._create_values()
+            self.assertTrue(self.x.has_section('blabla'), "Cannot create section 'blabla'")
+            self.assertEqual(self.x.get('blabla', 'a'), '1', 'get(blabla:a) should be equal to \'1\'; it\'s not')
+            self.assertEqual(int(self.x.get('blabla', 'a')), 1, 'getint(blabla:a) should be equal to 1; it\'s not')
+            self.assertEqual(self.x.get('blabla', 'b'), 'be', 'get(blabla:b) should be equal to \'be\'; it\'s not')
+            self.assertEqual(float(self.x.get('blabla', 'c')), 3.141592653, 'getint(blabla:c) should be equal to pi; it\'s not')
+            self.assertTrue(bool(self.x.get('blabla', 'switch')), 'getbool(blabla:switch) should be True; it\'s not')
 
     def test_interpolation(self):
-        self._create_values()
-        self.assertTrue(self.x.has_section('naka'), "Cannot create section 'naka'")
-        self.assertEqual(self.x.get('naka', 'valor1'), 'a1c3.141592653zzzbe')
+        if self.x:
+            self._create_values()
+            self.assertTrue(self.x.has_section('naka'), "Cannot create section 'naka'")
+            self.assertEqual(self.x.get('naka', 'valor1'), 'a1c3.141592653zzzbe')
 
     def test_abusive_conf(self):
         try:
-            self.x = config(os.getenv("HOME") + "/../another_user")
+            home = os.getenv("HOME")
+            if home:
+                self.x = config(home + "/../another_user")
         except ValueError:
             pass
 
     def test_store_and_retrieve(self):
-        self._create_values()
-        self.x._flush()
+        if self.x:
+            self._create_values()
+            self.x._flush()
 
-        y = config(initpath=self.x.path, create_folder=False)
-        self.assertTrue(y.has_section('blabla'), "Cannot create section 'blabla'")
-        self.assertEqual(y.get('blabla', 'a'), '1', 'get(blabla:a) should be equal to \'1\'; it\'s not')
-        self.assertEqual(y.get('blabla', 'b'), 'be', 'get(blabla:b) should be equal to \'be\'; it\'s not')
-        self.assertEqual(float(y.get('blabla', 'c')), 3.141592653, 'getint(blabla:c) should be equal to pi; it\'s not')
-        self.assertTrue(bool(y.get('blabla', 'switch')), 'getbool(blabla:switch) should be True; it\'s not')
+            y = config(initpath=self.x.path, create_folder=False)
+            self.assertTrue(y.has_section('blabla'), "Cannot create section 'blabla'")
+            self.assertEqual(y.get('blabla', 'a'), '1', 'get(blabla:a) should be equal to \'1\'; it\'s not')
+            self.assertEqual(y.get('blabla', 'b'), 'be', 'get(blabla:b) should be equal to \'be\'; it\'s not')
+            self.assertEqual(float(y.get('blabla', 'c')), 3.141592653, 'getint(blabla:c) should be equal to pi; it\'s not')
+            self.assertTrue(bool(y.get('blabla', 'switch')), 'getbool(blabla:switch) should be True; it\'s not')
 
     def test_sections(self):
-        self._create_values()
-        self.assertListEqual(self.x.sections(), ['blabla', 'naka'], "sections() should return all sections, but it doesn't")
+        if self.x:
+            self._create_values()
+            self.assertListEqual(self.x.sections(), ['blabla', 'naka'], "sections() should return all sections, but it doesn't")
 
 if __name__ == '__main__':
     unittest.main(verbosity=2)
