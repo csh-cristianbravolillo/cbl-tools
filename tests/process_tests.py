@@ -23,7 +23,7 @@ class TestProcess(unittest.TestCase):
             self.assertFalse(self.tp.is_there_stderr())
 
     def test_str(self):
-        self.assertEqual(str(self.tp), "<Empty cbl_tools.process object>")
+        self.assertEqual(str(self.tp), "<Empty ctbl_tools.process object>")
 
     def test_id(self):
         if self.tp:

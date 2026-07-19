@@ -50,19 +50,19 @@ def is_git_url(url:str)-> bool:
     allw = r"[\w\-\d\.]"
     user = fr"({allw}+@)"
     host = fr"{allw}+(\.{allw}+)+"
-    port = r"(:\d+)?"
-    path = r"({allw}+/?)*"
+    port = r"(:\d+)"
+    path = fr"(/{allw}+)*"
 
     # Type of URL #1: via SSH
-    if re.fullmatch(fr"ssh://{user}?{host}{port}{path}", url):
+    if re.fullmatch(fr"ssh://{user}?{host}{port}?{path}", url):
         return True
 
     # Type of URL #2: via HTTP(S), FTP(S), or via a pseudo-url with GIT as protocol
-    if re.fullmatch(fr"((ht|f)tp(s)?|git)://{host}{port}{path}", url):
+    if re.fullmatch(fr"((ht|f)tps?|git)://{user}?{host}{port}?{path}", url):
         return True
 
     # Type of URL #3: via user and host, which is for a private server
-    if re.fullmatch(fr"{user}?{host}:~?{path}", url):
+    if re.fullmatch(fr"{user}?{host}:~?{allw}+{path}", url):
         return True
 
     return False

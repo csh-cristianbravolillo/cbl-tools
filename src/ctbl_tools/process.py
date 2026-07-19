@@ -39,7 +39,7 @@ class process:
 
     def __str__(self) -> str:
         if not self.command:
-            return "<Empty cbl_tools.process object>"
+            return "<Empty ctbl_tools.process object>"
         else:
             out = f"({self.command})->{self.returncode}\n"
             if self.stdout:

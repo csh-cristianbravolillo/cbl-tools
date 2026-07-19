@@ -33,7 +33,7 @@ class TestGitRemote(unittest.TestCase):
         self.assertTrue(is_git_url("git://github.com/csh-cristianbravolillo/ctbl_tools.git"), "git url type #3 should have been recognized; it was not")
 
         # Type of URL #3
-        self.assertTrue(is_git_url("git@github.com:csh-cristianbravolillo/ctbl_tools.git"), "git url type #1 should have been recognized; it was not")
+        self.assertTrue(is_git_url("git@github.com:csh-cristianbravolillo/ctbl_tools.git"), "git url type #3 should have been recognized; it was not")
 
     def test_git_clone_is_git_folder(self):
 
