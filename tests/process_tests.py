@@ -1,6 +1,6 @@
 import unittest, os, sys
 sys.path.append(os.path.normpath(os.path.join(os.path.abspath(sys.path[0]), '../src')))
-from ctbl_tools.process import process
+from tools.process import process
 
 class TestProcess(unittest.TestCase):
 
@@ -23,7 +23,7 @@ class TestProcess(unittest.TestCase):
             self.assertFalse(self.tp.is_there_stderr())
 
     def test_str(self):
-        self.assertEqual(str(self.tp), "<Empty ctbl_tools.process object>")
+        self.assertEqual(str(self.tp), "<Empty tools.process object>")
 
     def test_id(self):
         if self.tp:

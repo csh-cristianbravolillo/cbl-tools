@@ -1,8 +1,7 @@
 import unittest, os, sys, tempfile, errno
 sys.path.append(os.path.normpath(os.path.join(os.path.abspath(sys.path[0]), '../src')))
-from ctbl_tools.config import config
-from ctbl_tools import create_tempdir
-
+from tools.config import config
+from tools import create_tempdir
 
 class ConfigTests(unittest.TestCase):
 

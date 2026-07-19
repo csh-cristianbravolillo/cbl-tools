@@ -3,13 +3,13 @@ requires = ["hatchling"]
 build-backend = "hatchling.build"
 
 [project]
-name = "ctbl_tools"
-version = "0.1.9"
+name = "ctbl"
+version = "0.1.11"
 license = "MIT"
 authors = [
 	{ name = "Cristian Bravo Lillo", email = "cristian.bravo@gmail.com" },
 ]
-description = "A set of helpers classes for daily tasks: a reusable config file, a process helper, and a git interface."
+description = "A set of helpers classes for daily tasks."
 readme = "README.md"
 requires-python = ">=3.8"
 classifiers = [

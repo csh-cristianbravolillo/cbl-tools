@@ -1,11 +1,9 @@
 import unittest, os, sys
 sys.path.append(os.path.normpath(os.path.join(os.path.abspath(sys.path[0]), '../src')))
-from ctbl_tools import create_tempdir
-from ctbl_tools.git import git
-from ctbl_tools.git import git_clone
-from ctbl_tools.git import is_git_url
-from ctbl_tools.git import is_git_folder
-from ctbl_tools.process import process
+from tools import create_tempdir
+from tools.git import git_clone
+from tools.git import is_git_url
+from tools.git import is_git_folder
 
 class TestGitRemote(unittest.TestCase):
 

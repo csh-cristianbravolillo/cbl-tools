@@ -23,9 +23,9 @@ This package also includes two auxiliary functions:
 import re
 import errno
 import os.path
-from ctbl_tools import process
-from ctbl_tools import norm_path
-from ctbl_tools.exceptions import EmptyValueError
+from tools import process
+from tools import norm_path
+from tools.exceptions import EmptyValueError
 
 
 def git_clone(url:str, path:str) -> bool:

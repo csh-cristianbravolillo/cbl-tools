@@ -11,10 +11,9 @@ def create_tempdir(mkdir:bool = False) -> str:
     p = tempfile.gettempdir()
     while True:
         fld = "cbl-config-" + str(random.randint(100000, 999999))
-        if not os.path.exists(os.path.join(p, fld)):
+        thispath = os.path.join(p, fld)
+        if not os.path.exists(thispath):
             break
-
-    thispath = os.path.join(p, fld)
 
     if mkdir:
         os.mkdir(thispath)
